@@ -3,17 +3,26 @@ import API from "../services/api";
 import { Package, Truck, CheckCircle, Clock, Search, ArrowRight, ShoppingBag, MapPin, Receipt, Star } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+/**
+ * Orders History Page Component
+ * Displays a list of all past orders placed by the current user
+ */
 export default function Orders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Initial data fetch on mount
     useEffect(() => {
         fetchOrders();
     }, []);
 
+    /**
+     * Fetches user-specific orders and sorts them by most recent first
+     */
     const fetchOrders = async () => {
         try {
             const res = await API.get("/orders/user");
+            // Standard JS sort to ensure newest orders appear at the top
             setOrders(res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         } catch (err) {
             console.error(err);
@@ -22,6 +31,9 @@ export default function Orders() {
         }
     };
 
+    /**
+     * Helper to map order status strings to visual Lucide icons
+     */
     const getStatusIcon = (status) => {
         switch (status) {
             case "Preparing": return <Clock className="text-orange-400" />;
@@ -31,6 +43,9 @@ export default function Orders() {
         }
     };
 
+    /**
+     * Helper to map order status strings to Tailwind CSS styling classes
+     */
     const getStatusClass = (status) => {
         switch (status) {
             case "Preparing": return "bg-orange-500/20 text-orange-500 border-orange-500/30";
@@ -44,6 +59,8 @@ export default function Orders() {
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-fade-in pb-20 pt-12 px-4">
+
+            {/* Page Header and Search UI */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-black/5 pb-8">
                 <div>
                     <h2 className="text-4xl md:text-6xl font-black text-text-main tracking-tight uppercase">
@@ -51,6 +68,7 @@ export default function Orders() {
                     </h2>
                     <p className="text-text-muted mt-2 font-bold uppercase tracking-widest text-xs opacity-40">Your past foodie moments</p>
                 </div>
+                {/* Search Bar (Functional placeholder for UI completeness) */}
                 <div className="relative group min-w-[300px]">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                     <input
@@ -60,6 +78,7 @@ export default function Orders() {
                 </div>
             </div>
 
+            {/* Empty State for New Users */}
             {orders.length === 0 ? (
                 <div className="py-24 text-center space-y-8">
                     <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto border border-black/5">
@@ -75,8 +94,11 @@ export default function Orders() {
                 </div>
             ) : (
                 <div className="space-y-8">
+                    {/* Map through each order card */}
                     {orders.map((order) => (
                         <div key={order._id} className="glass-card !bg-white overflow-hidden hover:border-black/20 transition-all border border-black/5 shadow-xl">
+
+                            {/* Card Top Banner: Status and ID */}
                             <div className="p-6 md:p-8 flex flex-wrap items-center justify-between gap-6 border-b border-black/5 bg-gray-50/50">
                                 <div className="flex items-center gap-4">
                                     <div className={`p-3 rounded-xl border ${getStatusClass(order.status)} flex items-center justify-center`}>
@@ -97,6 +119,7 @@ export default function Orders() {
                                 </div>
                             </div>
 
+                            {/* Card Content: Item Grid and Summary */}
                             <div className="p-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
                                 <div className="lg:col-span-8 space-y-4">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted opacity-40">Items</p>
@@ -119,6 +142,7 @@ export default function Orders() {
                                     </div>
                                 </div>
 
+                                {/* Order Summary Sidebar (Address & Amount) */}
                                 <div className="lg:col-span-4 bg-gray-50 p-6 rounded-2xl border border-black/5 space-y-6">
                                     <div className="space-y-4">
                                         <div className="flex items-start gap-3">

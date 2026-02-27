@@ -1,10 +1,12 @@
 import Restaurant from "../models/Restaurant.js";
 
+/**
+ * Creates a new restaurant profile
+ */
 export const createRestaurant = async (req, res) => {
     try {
-        console.log("createRestaurant body:", req.body);
-        console.log("createRestaurant file:", req.file);
         const { name, description, address } = req.body;
+        // Handle profile image upload
         const image = req.file ? req.file.path : null;
 
         const restaurant = await Restaurant.create({
@@ -12,7 +14,7 @@ export const createRestaurant = async (req, res) => {
             description,
             address,
             image,
-            isActive: true
+            isActive: true // Newly created restaurants are active by default
         });
 
         res.json(restaurant);
@@ -22,10 +24,14 @@ export const createRestaurant = async (req, res) => {
     }
 };
 
+/**
+ * Fetches a list of restaurants
+ * Query param 'all=true' shows all restaurants (admin)
+ * Default shows only active restaurants
+ */
 export const getRestaurants = async (req, res) => {
     try {
         const { all } = req.query;
-        // If all=true, return all restaurants (for admin). Otherwise, only active ones.
         const query = all === "true" ? {} : { isActive: true };
         const data = await Restaurant.find(query);
         res.json(data);
@@ -34,9 +40,13 @@ export const getRestaurants = async (req, res) => {
     }
 };
 
+/**
+ * Updates restaurant details
+ */
 export const updateRestaurant = async (req, res) => {
     try {
         const updateData = { ...req.body };
+        // Update image if a new file is uploaded
         if (req.file) updateData.image = req.file.path;
 
         const data = await Restaurant.findByIdAndUpdate(req.params.id, updateData, { new: true });
@@ -46,6 +56,9 @@ export const updateRestaurant = async (req, res) => {
     }
 };
 
+/**
+ * Deletes a restaurant profile
+ */
 export const deleteRestaurant = async (req, res) => {
     try {
         await Restaurant.findByIdAndDelete(req.params.id);
@@ -55,6 +68,9 @@ export const deleteRestaurant = async (req, res) => {
     }
 };
 
+/**
+ * Retrieves a single restaurant's details by ID
+ */
 export const getRestaurantById = async (req, res) => {
     try {
         const restaurant = await Restaurant.findById(req.params.id);

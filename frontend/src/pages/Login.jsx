@@ -4,25 +4,37 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
 
+/**
+ * Login Page Component
+ * Handles user authentication and session creation
+ */
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Get login function from AuthContext
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    /**
+     * Submit handler for the login form
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         try {
+            // POST credentials to backend auth API
             const res = await API.post("/auth/login", { email, password });
+            // Save token and update authentication state
             login(res.data.token);
+            // Redirect to home page on success
             navigate("/");
         } catch (err) {
+            // Show error message from backend if available
             setError(err.response?.data?.msg || "Login failed. Please check your credentials.");
         } finally {
             setLoading(false);
@@ -32,7 +44,8 @@ export default function Login() {
     return (
         <div className="min-h-screen flex items-center justify-center p-4 md:p-8 animate-fade-in pt-24">
             <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[40px] overflow-hidden shadow-2xl border border-black/5">
-                {/* Left: Illustration Side */}
+
+                {/* Left Side: Marketing illustration and welcome text */}
                 <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-primary/5 relative overflow-hidden text-center">
                     <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05)_0%,transparent_70%)]" />
 
@@ -40,7 +53,7 @@ export default function Login() {
                         <img
                             src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=800"
                             className="w-[400px] h-[400px] object-cover rounded-3xl shadow-2xl border-4 border-primary/10"
-                            alt="Chef Illustration"
+                            alt="Welcome to DeliverX"
                         />
                         <div className="space-y-2">
                             <h2 className="text-3xl font-black text-text-main">Deliciousness awaits.</h2>
@@ -49,7 +62,7 @@ export default function Login() {
                     </div>
                 </div>
 
-                {/* Right: Form Side */}
+                {/* Right Side: Authentication Form */}
                 <div className="p-8 md:p-16 flex flex-col justify-center bg-white text-left">
                     <div className="max-w-md mx-auto w-full space-y-10">
                         <div className="space-y-4">
@@ -57,6 +70,7 @@ export default function Login() {
                             <p className="text-text-muted font-medium">Enter your details below to access your account.</p>
                         </div>
 
+                        {/* Error Notification Alert */}
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl flex items-center gap-3 text-sm animate-shake font-bold">
                                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -65,6 +79,7 @@ export default function Login() {
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-8">
+                            {/* Email Input Field */}
                             <div className="space-y-3">
                                 <label className="text-sm font-bold text-text-muted tracking-widest uppercase pl-1">Email Address</label>
                                 <div className="relative group">
@@ -80,6 +95,7 @@ export default function Login() {
                                 </div>
                             </div>
 
+                            {/* Password Input Field */}
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center px-1">
                                     <label className="text-sm font-bold text-text-muted tracking-widest uppercase">Password</label>

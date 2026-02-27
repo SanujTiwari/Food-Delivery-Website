@@ -1,9 +1,15 @@
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 
+/**
+ * Footer Component
+ * Displays social links, site navigation, and contact information
+ */
 const Footer = () => {
     return (
         <footer className="bg-bg-card border-t border-black/5 pt-16 pb-8 px-6 md:px-12 mt-20">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+
+                {/* Brand Info & Socials */}
                 <div className="space-y-4">
                     <h3 className="text-2xl font-bold gradient-text">DeliverX</h3>
                     <p className="text-text-muted leading-relaxed">
@@ -22,6 +28,7 @@ const Footer = () => {
                     </div>
                 </div>
 
+                {/* Quick Navigation */}
                 <div>
                     <h4 className="text-lg font-semibold text-text-main mb-6">Quick Links</h4>
                     <ul className="space-y-4 text-text-muted">
@@ -32,6 +39,7 @@ const Footer = () => {
                     </ul>
                 </div>
 
+                {/* Support Links */}
                 <div>
                     <h4 className="text-lg font-semibold text-text-main mb-6">Support</h4>
                     <ul className="space-y-4 text-text-muted">
@@ -42,6 +50,7 @@ const Footer = () => {
                     </ul>
                 </div>
 
+                {/* Contact Information */}
                 <div>
                     <h4 className="text-lg font-semibold text-text-main mb-6">Contact</h4>
                     <ul className="space-y-4 text-text-muted">
@@ -61,6 +70,7 @@ const Footer = () => {
                 </div>
             </div>
 
+            {/* Copyright Note */}
             <div className="max-w-7xl mx-auto border-t border-black/5 mt-16 pt-8 text-center text-text-muted">
                 <p>&copy; {new Date().getFullYear()}.  Made with ❤️ By DeliverX Team. All rights reserved.</p>
             </div>

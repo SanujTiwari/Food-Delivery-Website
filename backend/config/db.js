@@ -2,13 +2,15 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
     try {
+        // Attempt connection with a 5s timeout
         await mongoose.connect(process.env.MONGO_URI, {
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            serverSelectionTimeoutMS: 5000,
         });
         console.log("MongoDB Connected Successfully");
     } catch (err) {
+        
         console.error("MongoDB Connection Failed:", err.message);
-        // Do not exit process here so server.js catch block handles it
+        //server.js can handle failed startup
         throw err;
     }
 };

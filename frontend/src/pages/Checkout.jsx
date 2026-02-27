@@ -5,32 +5,49 @@ import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import { MapPin, CreditCard, ChevronRight, ShoppingBag, ArrowLeft, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 
+/**
+ * Checkout Page Component
+ * Handles order submission, address entry, and payment method selection
+ */
 export default function Checkout() {
     const { cart, clearCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    // UI states for submission process
     const [loading, setLoading] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
 
+    // Form state for delivery details
     const [formData, setFormData] = useState({
         address: "",
         paymentMethod: "COD"
     });
 
+    /**
+     * Submits the order to the backend
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Prevent empty orders
         if (cart.items.length === 0) return alert("Your cart is empty");
 
         setLoading(true);
         try {
+            // Send order data to API
             await API.post("/orders", {
                 items: cart.items,
-                totalAmount: cart.totalAmount + 15, // Including platform fee
+                totalAmount: cart.totalAmount + 15, // Total includes the platform fee
                 deliveryAddress: formData.address,
                 paymentMethod: formData.paymentMethod
             });
+
+            // Clean up cart and show success state
             clearCart();
             setOrderSuccess(true);
+
+            // Redirect to orders history after a short delay
             setTimeout(() => navigate("/orders"), 3000);
         } catch (err) {
             console.error(err);
@@ -40,6 +57,7 @@ export default function Checkout() {
         }
     };
 
+    // Success Screen Render
     if (orderSuccess) {
         return (
             <div className="max-w-xl mx-auto py-32 text-center space-y-8 animate-fade-in">
@@ -56,6 +74,8 @@ export default function Checkout() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-12 animate-fade-in pb-20 pt-12 px-4">
+
+            {/* Navigation and Title */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-black/5 pb-8">
                 <div className="space-y-4">
                     <Link to="/cart" className="flex items-center gap-2 text-text-muted hover:text-primary transition-colors font-bold uppercase tracking-widest text-xs">
@@ -69,8 +89,11 @@ export default function Checkout() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
+
+                {/* Left Column: Form Fields */}
                 <div className="lg:col-span-3 space-y-8">
-                    {/* Delivery Section */}
+
+                    {/* Delivery Address Input */}
                     <div className="glass-card !bg-white p-8 space-y-8 border border-black/5">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-primary border border-black/5">
@@ -92,7 +115,7 @@ export default function Checkout() {
                         </div>
                     </div>
 
-                    {/* Payment Section */}
+                    {/* Payment Method Selection */}
                     <div className="glass-card !bg-white p-8 space-y-8 border border-black/5">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-primary border border-black/5">
@@ -104,6 +127,7 @@ export default function Checkout() {
                             </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* COD is currently the only active method */}
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, paymentMethod: "COD" })}
@@ -117,6 +141,7 @@ export default function Checkout() {
                                     <span className="text-[10px] text-text-muted opacity-60">Cash on Delivery</span>
                                 </div>
                             </button>
+                            {/* Visual placeholder for future online payments */}
                             <button
                                 type="button"
                                 disabled
@@ -134,6 +159,7 @@ export default function Checkout() {
                     </div>
                 </div>
 
+                {/* Right Column: Order Review & Total */}
                 <div className="lg:col-span-2">
                     <div className="glass-card !bg-white p-8 space-y-8 border border-black/5 lg:sticky lg:top-24">
                         <div className="space-y-1">
@@ -141,6 +167,7 @@ export default function Checkout() {
                             <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest opacity-40">Review Summary</p>
                         </div>
 
+                        {/* Quick View of Items */}
                         <div className="space-y-4 max-h-[300px] overflow-y-auto px-1 custom-scrollbar">
                             {cart.items.map((item) => (
                                 <div key={item.foodId?._id} className="flex justify-between items-start gap-4">
@@ -153,6 +180,7 @@ export default function Checkout() {
                             ))}
                         </div>
 
+                        {/* Breakdown of Costs */}
                         <div className="pt-6 border-t border-black/5 space-y-3">
                             <div className="flex justify-between text-text-muted font-bold text-[10px] uppercase tracking-widest">
                                 <span>Subtotal</span>
@@ -176,6 +204,7 @@ export default function Checkout() {
                             </div>
                         </div>
 
+                        {/* Final Action Button */}
                         <button
                             type="submit"
                             disabled={loading || cart.items.length === 0}

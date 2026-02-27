@@ -5,15 +5,21 @@ import { Plus, Edit2, Trash2, Power, PowerOff, MapPin, X, Check, Image as ImageI
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { Link } from "react-router-dom";
 
+/**
+ * ManageRestaurants Component
+ * Main administrative interface for managing the list of restaurants on the platform.
+ * Supports onboarding new partners, editing profiles, and toggling active status.
+ */
 export default function ManageRestaurants() {
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [currentRestaurant, setCurrentRestaurant] = useState(null);
+    const [currentRestaurant, setCurrentRestaurant] = useState(null); // Restaurant being edited
     const [saving, setSaving] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState("");
 
+    // Form state for restaurant profile
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -21,13 +27,17 @@ export default function ManageRestaurants() {
         isActive: true
     });
 
+    // Fetch partners on mount
     useEffect(() => {
         fetchRestaurants();
     }, []);
 
+    /**
+     * Retrieves all restaurants from the database
+     */
     const fetchRestaurants = async () => {
         try {
-            // Admin needs all restaurants, including inactive ones
+            // Admin needs all restaurants, including inactive ones (all=true param)
             const res = await API.get("/restaurants?all=true");
             setRestaurants(res.data);
         } catch (err) {
@@ -37,8 +47,12 @@ export default function ManageRestaurants() {
         }
     };
 
+    /**
+     * Initializes the modal state for add or edit operations
+     */
     const handleOpenModal = (restaurant = null) => {
         if (restaurant) {
+            // Load existing data for editing
             setCurrentRestaurant(restaurant);
             setFormData({
                 name: restaurant.name,
@@ -48,6 +62,7 @@ export default function ManageRestaurants() {
             });
             setImagePreview(restaurant.image || "");
         } else {
+            // Clear for new onboarding
             setCurrentRestaurant(null);
             setFormData({
                 name: "",
@@ -61,6 +76,9 @@ export default function ManageRestaurants() {
         setShowModal(true);
     };
 
+    /**
+     * Handles image selection and creates a local preview blob
+     */
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -69,6 +87,9 @@ export default function ManageRestaurants() {
         }
     };
 
+    /**
+     * Submits the restaurant data using FormData (multi-part for image support)
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -78,16 +99,22 @@ export default function ManageRestaurants() {
             data.append("description", formData.description);
             data.append("address", formData.address);
             data.append("isActive", formData.isActive);
+
+            // Only attach new image if selected
             if (imageFile) {
                 data.append("image", imageFile);
             }
 
             if (currentRestaurant) {
+                // Update existing partner
                 // do not set Content-Type manually when sending FormData, axios will handle the boundary
                 await API.put(`/restaurants/${currentRestaurant._id}`, data);
             } else {
+                // Onboard new partner
                 await API.post("/restaurants", data);
             }
+
+            // Re-sync UI
             fetchRestaurants();
             setShowModal(false);
         } catch (err) {
@@ -99,6 +126,9 @@ export default function ManageRestaurants() {
         }
     };
 
+    /**
+     * Permanently removes a restaurant partner
+     */
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this restaurant?")) {
             try {
@@ -111,6 +141,9 @@ export default function ManageRestaurants() {
         }
     };
 
+    /**
+     * Quick toggle for restaurant visibility/reachability on the platform
+     */
     const toggleStatus = async (restaurant) => {
         try {
             await API.put(`/restaurants/${restaurant._id}`, {
@@ -127,6 +160,8 @@ export default function ManageRestaurants() {
 
     return (
         <div className="space-y-10 animate-fade-in pb-20">
+
+            {/* Header and Onboarding Trigger */}
             <div className="flex flex-wrap items-center justify-between gap-6">
                 <div>
                     <h2 className="text-4xl font-black text-text-main tracking-tighter uppercase italic">Restaurant HQ</h2>
@@ -138,11 +173,15 @@ export default function ManageRestaurants() {
                 </button>
             </div>
 
+            {/* Partner Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {restaurants.map((r) => (
                     <div key={r._id} className="glass-card !bg-white overflow-hidden group hover:border-primary/20 transition-all shadow-xl border border-black/5">
+                        {/* Visual Banner */}
                         <div className="relative h-48 overflow-hidden bg-gray-50">
                             <img src={r.image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={r.name} />
+
+                            {/* Fast Actions Overlay */}
                             <div className="absolute top-4 right-4 flex gap-2">
                                 <button
                                     onClick={() => handleOpenModal(r)}
@@ -157,6 +196,8 @@ export default function ManageRestaurants() {
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
+
+                            {/* Live Status Badge */}
                             <div className="absolute bottom-4 left-4">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 backdrop-blur-md shadow-xl ${r.isActive ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}>
                                     <div className={`w-1.5 h-1.5 rounded-full ${r.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
@@ -164,13 +205,19 @@ export default function ManageRestaurants() {
                                 </span>
                             </div>
                         </div>
+
+                        {/* Summary Narrative */}
                         <div className="p-6 space-y-4">
                             <h3 className="text-xl font-black text-text-main uppercase tracking-tight group-hover:text-primary transition-colors italic">{r.name}</h3>
                             <p className="text-text-muted text-sm line-clamp-2 italic opacity-80">{r.description}</p>
+
+                            {/* Geographic Registry */}
                             <div className="flex items-center gap-3 text-text-muted text-xs bg-gray-50 p-3 rounded-xl border border-gray-100">
                                 <MapPin className="w-4 h-4 text-primary" />
                                 <span className="truncate">{r.address}</span>
                             </div>
+
+                            {/* Primary Navigation & Availability Toggles */}
                             <div className="pt-4 border-t border-black/5 flex items-center justify-between">
                                 <Link to={`/admin/restaurants/${r._id}/foods`} className="text-[10px] font-black text-white hover:bg-primary/90 transition-colors flex items-center gap-2 uppercase tracking-widest bg-primary px-4 py-2 rounded-lg">
                                     Manage Menu
@@ -189,13 +236,13 @@ export default function ManageRestaurants() {
                 ))}
             </div>
 
-            {/* Modal */}
+            {/* Partner Onboarding/Edit Modal */}
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => !saving && setShowModal(false)} />
                     <div className="relative glass-card !bg-white w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.2)] border border-black/5 animate-fade-in">
                         <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
-                            {/* Header */}
+                            {/* Modal Hub Header */}
                             <div className="p-10 pb-6 flex items-center justify-between border-b border-black/5 bg-gray-50">
                                 <div>
                                     <h3 className="text-3xl font-black text-text-main uppercase tracking-tight leading-none italic">{currentRestaurant ? 'Modify Partner' : 'New Partner'}</h3>
@@ -206,9 +253,9 @@ export default function ManageRestaurants() {
                                 </button>
                             </div>
 
-                            {/* Scrollable Body */}
+                            {/* Scrollable Entry Fields */}
                             <div className="flex-grow overflow-y-auto p-10 space-y-10 custom-scrollbar">
-                                {/* Section 1: Identity */}
+                                {/* Section 1: Core Identity and Assets */}
                                 <div className="space-y-6">
                                     <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] inline-block border-b border-primary/30 pb-1">Essential Identity</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -235,6 +282,7 @@ export default function ManageRestaurants() {
                                             </div>
                                         </div>
 
+                                        {/* Visual Asset Management */}
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-text-muted px-1 opacity-70 block">Brand Visual</label>
                                             <div className="relative group/upload h-[178px] rounded-2xl border-2 border-dashed border-gray-200 hover:border-primary/50 transition-all overflow-hidden bg-gray-50 shadow-sm cursor-pointer">
@@ -260,7 +308,7 @@ export default function ManageRestaurants() {
                                     </div>
                                 </div>
 
-                                {/* Section 2: Narrative */}
+                                {/* Section 2: Narrative and Storytelling */}
                                 <div className="space-y-6">
                                     <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] inline-block border-b border-primary/30 pb-1">Brand Narrative</h4>
                                     <div className="space-y-2">
@@ -276,7 +324,7 @@ export default function ManageRestaurants() {
                                 </div>
                             </div>
 
-                            {/* Footer */}
+                            {/* Modal Footer Controls */}
                             <div className="p-10 pt-6 border-t border-black/5 bg-gray-50">
                                 <div className="flex items-center gap-6">
                                     <button

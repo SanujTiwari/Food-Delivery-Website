@@ -4,20 +4,32 @@ import { Link, useNavigate } from "react-router-dom";
 import { Trash2, ShoppingBag, ArrowRight, ArrowLeft, Plus, Minus, ShoppingCart, ShieldCheck, Ticket } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+/**
+ * Cart Page Component
+ * Manages the user's shopping basket, including quantity adjustments and totals
+ */
 export default function Cart({ showToast }) {
+    // Import global cart actions from CartContext
     const { cart, loading, removeFromCart, addToCart, fetchCart } = useContext(CartContext);
     const navigate = useNavigate();
 
+    // Ensure cart data is fresh on mount
     useEffect(() => {
         fetchCart();
     }, []);
 
+    /**
+     * Handles item removal with a notification feedback
+     */
     const handleRemove = async (foodId, name) => {
         if (!foodId) return;
         await removeFromCart(foodId);
         showToast(`${name} removed from your basket`, "info");
     };
 
+    /**
+     * Updates quantities by reusing addToCart with positive or negative values
+     */
     const handleQuantityChange = async (foodId, name, delta) => {
         const success = await addToCart(foodId, delta);
         if (success && delta > 0) {
@@ -25,11 +37,13 @@ export default function Cart({ showToast }) {
         }
     };
 
+    // Show spinner during initial data load
     if (loading && !cart.items.length) return <LoadingSpinner />;
 
     return (
         <div className="max-w-7xl mx-auto space-y-12 animate-fade-in pb-24 pt-12 px-4">
-            {/* Header */}
+
+            {/* Page Header and Total Count */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-black/5 pb-8">
                 <div className="space-y-4">
                     <Link to="/" className="inline-flex items-center gap-2 text-text-muted hover:text-primary transition-all text-xs font-bold uppercase tracking-widest group">
@@ -46,6 +60,7 @@ export default function Cart({ showToast }) {
                 </div>
             </div>
 
+            {/* Conditional Rendering: Empty state vs Cart items */}
             {!cart || cart.items.length === 0 ? (
                 <div className="py-24 text-center space-y-8">
                     <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto border border-black/5">
@@ -61,14 +76,15 @@ export default function Cart({ showToast }) {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    {/* Left Side: Items List */}
+
+                    {/* Items List Section */}
                     <div className="lg:col-span-8 space-y-4">
                         {cart.items.map((item) => (
                             <div
                                 key={item.foodId?._id || item._id}
                                 className="glass-card !bg-white p-6 flex flex-col sm:flex-row gap-6 items-center hover:border-primary/20 transition-all border border-black/5"
                             >
-                                {/* Product Image */}
+                                {/* Item Visual */}
                                 <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-50 border border-black/5">
                                     <img
                                         src={item.foodId?.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"}
@@ -77,7 +93,7 @@ export default function Cart({ showToast }) {
                                     />
                                 </div>
 
-                                {/* Product Info */}
+                                {/* Item Metadata */}
                                 <div className="flex-grow space-y-2 text-center sm:text-left">
                                     <div>
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-primary opacity-60">
@@ -95,7 +111,7 @@ export default function Cart({ showToast }) {
                                     </button>
                                 </div>
 
-                                {/* Quantity Controls */}
+                                {/* Item Quantity Management Controls */}
                                 <div className="flex flex-col items-center sm:items-end gap-4 min-w-[140px]">
                                     <div className="flex items-center bg-gray-50 rounded-xl border border-black/5 p-1">
                                         <button
@@ -123,7 +139,7 @@ export default function Cart({ showToast }) {
                         ))}
                     </div>
 
-                    {/* Right Side: Order Summary */}
+                    {/* Order Summary/Checkout Sticky Sidebar */}
                     <div className="lg:col-span-4 lg:sticky lg:top-28">
                         <div className="glass-card !bg-white p-8 space-y-8 shadow-xl border border-black/5">
                             <div className="space-y-1">
@@ -169,6 +185,7 @@ export default function Cart({ showToast }) {
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
 
+                            {/* Trust Badges and Terms Link */}
                             <div className="pt-4 text-center">
                                 <div className="flex items-center gap-2 text-text-muted justify-center opacity-50 grayscale hover:grayscale-0 transition-all">
                                     <ShieldCheck className="w-5 h-5" />

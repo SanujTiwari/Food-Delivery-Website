@@ -3,22 +3,32 @@ import API from "../../services/api";
 import { Package, Truck, CheckCircle, XCircle, Clock, Search, Filter, Eye, RefreshCcw, LayoutGrid } from "lucide-react";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
+/**
+ * Administrative interface for monitoring and updating the status of all orders
+ * across the platform. Includes live status filtering and fulfillment tools.
+ */
 export default function ManageOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    // Real-time counters for different order states
     const [stats, setStats] = useState({ pending: 0, preparing: 0, delivered: 0 });
 
+    // Initial load of global orders
     useEffect(() => {
         fetchOrders();
     }, []);
 
+    /**
+     * Retrieves all orders and calculates basic breakdown stats
+     */
     const fetchOrders = async () => {
         try {
             const res = await API.get("/orders/admin");
+            // Standard sort to put most recent activity at the top
             const data = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             setOrders(data);
 
-            // Calculate basic stats
+            // Dynamically calculate status counts for header cards
             setStats({
                 pending: data.filter(o => o.status === "Pending").length,
                 preparing: data.filter(o => o.status === "Preparing").length,
@@ -31,15 +41,22 @@ export default function ManageOrders() {
         }
     };
 
+    /**
+     * Updates an order's fulfillment stage in the database
+     */
     const updateStatus = async (id, status) => {
         try {
             await API.put(`/orders/${id}/status`, { status });
+            // Refresh list to reflect state changes across the board
             fetchOrders();
         } catch (err) {
             console.error(err);
         }
     };
 
+    /**
+     * Visual mapping helper for badge styling based on status
+     */
     const getStatusStyles = (status) => {
         switch (status) {
             case "Pending": return "bg-primary/10 text-primary border-primary/20";
@@ -55,7 +72,8 @@ export default function ManageOrders() {
 
     return (
         <div className="space-y-12 animate-fade-in pb-20">
-            {/* Header & Stats */}
+
+            {/* Command Header and Summary Counters */}
             <div className="flex flex-wrap items-center justify-between gap-8">
                 <div>
                     <h2 className="text-4xl font-black text-text-main tracking-tighter uppercase italic">Logistics Hub</h2>
@@ -63,6 +81,7 @@ export default function ManageOrders() {
                 </div>
 
                 <div className="flex gap-4">
+                    {/* Status Breakdown Cards */}
                     <div className="glass-card !bg-white px-6 py-4 flex items-center gap-4 border border-black/5 shadow-lg">
                         <div className="bg-primary/10 p-2 rounded-xl"><Clock className="text-primary w-5 h-5" /></div>
                         <div>
@@ -87,8 +106,9 @@ export default function ManageOrders() {
                 </div>
             </div>
 
-            {/* Table */}
+            {/* Central Order Registry Table */}
             <div className="glass-card !bg-white overflow-hidden border border-black/5 shadow-2xl">
+                {/* Table Toolbars */}
                 <div className="p-6 border-b border-black/5 flex flex-wrap items-center justify-between gap-4 bg-gray-50">
                     <div className="flex items-center gap-4">
                         <LayoutGrid className="text-primary w-5 h-5" />
@@ -103,6 +123,7 @@ export default function ManageOrders() {
                     </div>
                 </div>
 
+                {/* Main Data Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -118,10 +139,12 @@ export default function ManageOrders() {
                         <tbody className="divide-y divide-black/5">
                             {orders.map((order) => (
                                 <tr key={order._id} className="hover:bg-gray-50 transition-colors group">
+                                    {/* Order Primary Identity */}
                                     <td className="px-8 py-6">
                                         <p className="text-text-main font-black tracking-widest text-xs uppercase italic">#{order._id.slice(-8).toUpperCase()}</p>
                                         <p className="text-[10px] text-text-muted mt-1 font-bold">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </td>
+                                    {/* Customer & Address Details */}
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3 mb-1">
                                             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary uppercase">
@@ -131,6 +154,7 @@ export default function ManageOrders() {
                                         </div>
                                         <p className="text-[10px] text-text-muted truncate max-w-[180px] font-bold opacity-60 italic">{order.deliveryAddress}</p>
                                     </td>
+                                    {/* Visual Item List (Avatar Stack) */}
                                     <td className="px-8 py-6">
                                         <div className="flex -space-x-2">
                                             {order.items.slice(0, 3).map((item, i) => (
@@ -145,15 +169,18 @@ export default function ManageOrders() {
                                             )}
                                         </div>
                                     </td>
+                                    {/* Payment and Value Summary */}
                                     <td className="px-8 py-6">
                                         <p className="text-sm font-black text-text-main italic">₹{order.totalAmount}</p>
                                         <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase opacity-60 italic">{order.paymentMethod}</p>
                                     </td>
+                                    {/* Current Resolution State Badge */}
                                     <td className="px-8 py-6">
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyles(order.status)}`}>
                                             {order.status}
                                         </span>
                                     </td>
+                                    {/* Master Status Control Select */}
                                     <td className="px-8 py-6 text-right">
                                         <select
                                             value={order.status}

@@ -6,23 +6,33 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 
+/**
+ * Restaurant Detail Page Component
+ * Displays restaurant information and its menu items with add-to-cart functionality
+ */
 export default function Restaurant({ showToast }) {
-    const { id } = useParams();
+    const { id } = useParams(); // Get restaurant ID from URL
     const { addToCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    // Local state for restaurant details, menu items, and UI feedback
     const [restaurant, setRestaurant] = useState(null);
     const [foods, setFoods] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [quantities, setQuantities] = useState({});
-    const [adding, setAdding] = useState(null);
-    const [selectedFood, setSelectedFood] = useState(null);
-    const [activeCategory, setActiveCategory] = useState(null);
+    const [quantities, setQuantities] = useState({}); // Tracks quantity selected for each food item locally before adding to cart
+    const [adding, setAdding] = useState(null); // Tracks which item is currently being added to API
+    const [selectedFood, setSelectedFood] = useState(null); // For detail modal
+    const [activeCategory, setActiveCategory] = useState(null); // For sidebar filtering
 
+    // Fetch data when restaurant ID changes
     useEffect(() => {
         fetchDetails();
     }, [id]);
 
+    /**
+     * Parallel fetch for restaurant profile and its associated food items
+     */
     const fetchDetails = async () => {
         try {
             const [resRest, resFood] = await Promise.all([
@@ -38,6 +48,9 @@ export default function Restaurant({ showToast }) {
         }
     };
 
+    /**
+     * Updates the local quantity for a specific food item
+     */
     const handleQuantity = (foodId, delta) => {
         setQuantities(prev => ({
             ...prev,
@@ -45,7 +58,11 @@ export default function Restaurant({ showToast }) {
         }));
     };
 
+    /**
+     * Adds an item to the global cart state
+     */
     const handleAddToCart = async (food) => {
+        // Enforce login before adding to cart
         if (!user) {
             showToast("You must login or signup first", "error");
             navigate("/login");
@@ -58,6 +75,7 @@ export default function Restaurant({ showToast }) {
 
         if (success) {
             showToast(`${food.name} added to cart!`, "success");
+            // Reset local quantity after success
             setQuantities(prev => ({ ...prev, [food._id]: 1 }));
             setSelectedFood(null);
         } else {
@@ -67,6 +85,8 @@ export default function Restaurant({ showToast }) {
     };
 
     if (loading) return <LoadingSpinner />;
+
+    // Empty state if restaurant doesn't exist
     if (!restaurant) return (
         <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6 animate-fade-in">
             <div className="bg-black/5 p-10 rounded-full">
@@ -77,11 +97,13 @@ export default function Restaurant({ showToast }) {
         </div>
     );
 
+    // Get unique categories from the food list for the sidebar
     const categories = [...new Set(foods.map(f => f.category))];
 
     return (
         <div className="space-y-12 animate-fade-in pb-20 relative">
-            {/* Restaurant Header */}
+
+            {/* Hero Image & Information */}
             <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-2xl">
                 <img
                     src={restaurant.image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=2000"}
@@ -112,7 +134,8 @@ export default function Restaurant({ showToast }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-                {/* Categories Sidebar */}
+
+                {/* Categories Sidebar Index */}
                 <div className="lg:col-span-1 space-y-4 hidden lg:block sticky top-24 h-fit">
                     <h3 className="text-xl font-bold text-text-main px-4 border-l-4 border-primary ml-2">Categories</h3>
                     <div className="space-y-2">
@@ -136,7 +159,7 @@ export default function Restaurant({ showToast }) {
                     </div>
                 </div>
 
-                {/* Menu Items */}
+                {/* Main Menu Feed: Grouped by category */}
                 <div className="lg:col-span-3 space-y-12">
                     {categories.filter(cat => !activeCategory || cat === activeCategory).map(cat => (
                         <div key={cat} className="space-y-6">
@@ -200,7 +223,7 @@ export default function Restaurant({ showToast }) {
                 </div>
             </div>
 
-            {/* Food Detail Modal */}
+            {/* Food Detail Modal: Triggered on item click */}
             {selectedFood && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in">
                     <div
@@ -244,6 +267,7 @@ export default function Restaurant({ showToast }) {
                                 experience symphony of flavors with our {selectedFood.name}. prepared with premium ingredients and authentic culinary techniques.
                             </p>
 
+                            {/* Quantity Control UI in Modal */}
                             <div className="flex items-center justify-between pt-6 border-t border-black/5">
                                 <div className="flex items-center bg-black/5 rounded-2xl border border-black/5 p-1.5 min-w-[140px] justify-between">
                                     <button

@@ -4,17 +4,25 @@ import { useParams, Link } from "react-router-dom";
 import { Plus, Edit2, Trash2, ArrowLeft, X, Check, UtensilsCrossed, Image as ImageIcon, Upload } from "lucide-react";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
+/**
+ * ManageFoods Component
+ * Admin view for adding, editing, and deleting food items for a specific restaurant.
+ * Handles inventory cataloging and image uploads.
+ */
 export default function ManageFoods() {
-    const { restaurantId } = useParams();
+    const { restaurantId } = useParams(); // ID of the restaurant being managed
     const [foods, setFoods] = useState([]);
     const [loading, setLoading] = useState(true);
     const [restaurant, setRestaurant] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [currentFood, setCurrentFood] = useState(null);
+    const [currentFood, setCurrentFood] = useState(null); // The food item currently being edited (null if adding new)
     const [saving, setSaving] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState("");
 
+    // States for image handling
+    const [imageFile, setImageFile] = useState(null); // The actual file object for upload
+    const [imagePreview, setImagePreview] = useState(""); // URL for local preview before upload
+
+    // Form state for creating/updating food entries
     const [formData, setFormData] = useState({
         name: "",
         price: "",
@@ -22,11 +30,15 @@ export default function ManageFoods() {
         isAvailable: true
     });
 
+    // Fetch initial data on restaurant ID change
     useEffect(() => {
         fetchRestaurant();
         fetchFoods();
     }, [restaurantId]);
 
+    /**
+     * Gets restaurant profile to display context in header
+     */
     const fetchRestaurant = async () => {
         try {
             const res = await API.get(`/restaurants/${restaurantId}`);
@@ -36,6 +48,9 @@ export default function ManageFoods() {
         }
     };
 
+    /**
+     * Gets the current menu for the restaurant
+     */
     const fetchFoods = async () => {
         try {
             const res = await API.get(`/foods/${restaurantId}`);
@@ -47,8 +62,12 @@ export default function ManageFoods() {
         }
     };
 
+    /**
+     * Preps the form modal for either creation OR editing
+     */
     const handleOpenModal = (food = null) => {
         if (food) {
+            // Populate form for editing existing item
             setCurrentFood(food);
             setFormData({
                 name: food.name,
@@ -58,6 +77,7 @@ export default function ManageFoods() {
             });
             setImagePreview(food.image || "");
         } else {
+            // Reset form for adding new item
             setCurrentFood(null);
             setFormData({
                 name: "",
@@ -71,14 +91,20 @@ export default function ManageFoods() {
         setShowModal(true);
     };
 
+    /**
+     * Handles local image selection and preview generation
+     */
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
+            setImagePreview(URL.createObjectURL(file)); // Create temp URL for UI
         }
     };
 
+    /**
+     * Submits form data (using FormData to support multi-part image uploads)
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -88,15 +114,21 @@ export default function ManageFoods() {
             data.append("price", formData.price);
             data.append("category", formData.category);
             data.append("isAvailable", formData.isAvailable);
+
+            // Only attach image if a new file was selected
             if (imageFile) {
                 data.append("image", imageFile);
             }
 
             if (currentFood) {
+                // Update existing item
                 await API.put(`/foods/${currentFood._id}`, data);
             } else {
+                // Create new item for this restaurant
                 await API.post(`/foods/${restaurantId}`, data);
             }
+
+            // Refresh data and close UI
             fetchFoods();
             setShowModal(false);
         } catch (err) {
@@ -108,6 +140,9 @@ export default function ManageFoods() {
         }
     };
 
+    /**
+     * Removes a food item from the menu after confirmation
+     */
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this food item?")) {
             try {
@@ -124,6 +159,8 @@ export default function ManageFoods() {
 
     return (
         <div className="space-y-10 animate-fade-in pb-20">
+
+            {/* Header: Identity and Add Trigger */}
             <div className="flex flex-wrap items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                     <Link to="/admin/restaurants" className="p-3 bg-white !rounded-2xl shadow-lg border border-gray-100 hover:bg-gray-50 transition-all group">
@@ -143,14 +180,17 @@ export default function ManageFoods() {
                 </button>
             </div>
 
+            {/* Grid of Food Item Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {foods.map((f) => (
                     <div key={f._id} className="glass-card !bg-white overflow-hidden group hover:translate-y-[-8px] transition-all duration-300 shadow-xl border border-black/5">
+                        {/* Visual Asset Section */}
                         <div className="relative h-56 bg-gray-50 p-4">
                             <div className="relative h-full rounded-2xl overflow-hidden">
                                 <img src={f.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={f.name} />
                                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
+                                {/* Per-card Administrative Actions */}
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     <button onClick={() => handleOpenModal(f)} className="p-3 bg-white/80 hover:bg-white text-text-main backdrop-blur-xl transition-all shadow-xl rounded-xl">
                                         <Edit2 className="w-4 h-4" />
@@ -167,6 +207,8 @@ export default function ManageFoods() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Summary Information */}
                         <div className="p-8 space-y-6">
                             <div className="flex justify-between items-start">
                                 <h3 className="text-xl font-black text-text-main group-hover:text-primary transition-colors tracking-tight italic uppercase">{f.name}</h3>
@@ -175,6 +217,8 @@ export default function ManageFoods() {
                                     <p className="text-[10px] text-text-muted font-black uppercase tracking-tighter opacity-60">Per Serving</p>
                                 </div>
                             </div>
+
+                            {/* Availability Toggle Representation */}
                             <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                                 <div className={`w-3 h-3 rounded-full ${f.isAvailable ? 'bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.3)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]'}`} />
                                 <span className={`text-xs font-black uppercase tracking-widest ${f.isAvailable ? 'text-green-500' : 'text-red-500 font-bold opacity-60'}`}>
@@ -186,6 +230,7 @@ export default function ManageFoods() {
                 ))}
             </div>
 
+            {/* Form Modal for Add/Edit logic */}
             {showModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 lg:p-0">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => !saving && setShowModal(false)} />
@@ -203,6 +248,7 @@ export default function ManageFoods() {
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                 <div className="space-y-6">
+                                    {/* Name Input */}
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-text-muted px-2">Dish Name</label>
                                         <input
@@ -213,6 +259,7 @@ export default function ManageFoods() {
                                             placeholder="e.g. Diamond Truffle Pasta"
                                         />
                                     </div>
+                                    {/* Price Input */}
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-text-muted px-2">Price Point (₹)</label>
                                         <input
@@ -226,6 +273,7 @@ export default function ManageFoods() {
                                     </div>
                                 </div>
 
+                                {/* Custom Upload UI for Images */}
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-text-muted px-2 block">Menu Visual</label>
                                     <div className="relative group/upload h-[178px] rounded-[2.5rem] border-2 border-dashed border-gray-200 hover:border-primary/50 transition-all overflow-hidden bg-gray-50 shadow-sm">
@@ -253,6 +301,7 @@ export default function ManageFoods() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                {/* Category String Input */}
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-text-muted px-2">Menu Category</label>
                                     <input
@@ -263,6 +312,7 @@ export default function ManageFoods() {
                                         placeholder="e.g. Signature Mains"
                                     />
                                 </div>
+                                {/* Availability Checkbox UI */}
                                 <div className="flex flex-col justify-end">
                                     <div className="flex items-center gap-4 bg-gray-50 p-5 rounded-2xl border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors shadow-sm" onClick={() => setFormData({ ...formData, isAvailable: !formData.isAvailable })}>
                                         <div className={`w-6 h-6 rounded-md border-2 border-primary flex items-center justify-center transition-all ${formData.isAvailable ? 'bg-primary border-primary' : 'bg-white'}`}>
@@ -273,6 +323,7 @@ export default function ManageFoods() {
                                 </div>
                             </div>
 
+                            {/* Modal Action Buttons */}
                             <div className="flex items-center gap-8 pt-6">
                                 <button
                                     type="submit"

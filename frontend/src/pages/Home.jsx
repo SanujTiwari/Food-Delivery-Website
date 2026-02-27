@@ -4,15 +4,23 @@ import { Link } from "react-router-dom";
 import { MapPin, Star, Clock, Search, UtensilsCrossed } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+/**
+ * Home Page Component
+ * Displays the hero section, search functionality, and a list of available restaurants
+ */
 export default function Home() {
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Fetch restaurants once when component mounts
     useEffect(() => {
         fetchRestaurants();
     }, []);
 
+    /**
+     * Retrieves all active restaurants from the backend
+     */
     const fetchRestaurants = async () => {
         try {
             const res = await API.get("/restaurants");
@@ -24,11 +32,13 @@ export default function Home() {
         }
     };
 
+    // Filter restaurants based on user search input
     const filteredRestaurants = restaurants.filter(r =>
         r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Scroll helper to jump to the restaurant listing
     const scrollToRestaurants = () => {
         document.getElementById("restaurants-section")?.scrollIntoView({ behavior: "smooth" });
     };
@@ -37,12 +47,12 @@ export default function Home() {
 
     return (
         <div className="space-y-20 animate-fade-in pb-24">
-            
-            {/* Hero Section */}
+
+            {/* Hero Section: Main marketing area */}
             <div className="relative min-h-[480px] flex items-center">
                 <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
-                    {/* Text */}
+                    {/* Left Side: Value proposition text */}
                     <div className="space-y-8 relative z-20">
                         <div className="inline-flex items-center gap-2 bg-black/5 border border-black/5 px-4 py-2 rounded-full">
                             <span className="text-primary text-xs font-black uppercase tracking-widest">Fastest Delivery</span>
@@ -65,6 +75,7 @@ export default function Home() {
                             Order Now
                         </button>
 
+                        {/* Social Proof Section */}
                         <div className="pt-6 flex items-center gap-4 border-t border-black/5 w-fit">
                             <div>
                                 <div className="flex items-center gap-1 text-primary">
@@ -78,9 +89,8 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Smaller Hero Image */}
+                    {/* Right Side: Hero Image and decorative elements */}
                     <div className="relative h-full flex items-center justify-center group lg:block hidden">
-                        
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
                         w-[320px] h-[320px] bg-primary/10 rounded-full blur-[90px]" />
 
@@ -88,7 +98,7 @@ export default function Home() {
                             <img
                                 src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80&w=800"
                                 className="w-full max-w-[240px] md:max-w-[260px] mx-auto h-auto drop-shadow-xl rounded-2xl"
-                                alt="Food"
+                                alt="Delicious Food"
                             />
                         </div>
                     </div>
@@ -96,7 +106,7 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Why Choose Us */}
+            {/* Why Choose Us: Feature highlight section */}
             <div id="why-choose-us" className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="glass-card p-10 space-y-6 hover:border-primary/30 transition-all group !bg-white">
                     <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
@@ -129,9 +139,10 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Restaurants */}
+            {/* Restaurants List: Main dynamic section */}
             <div id="restaurants-section" className="max-w-7xl mx-auto px-4 space-y-12">
-                
+
+                {/* Header and Search Bar */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                     <div>
                         <h2 className="text-4xl font-black text-text-main flex items-center gap-4">
@@ -155,6 +166,7 @@ export default function Home() {
                     </div>
                 </div>
 
+                {/* Grid display or empty state */}
                 {filteredRestaurants.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-text-muted text-lg">No restaurants found</p>
