@@ -114,7 +114,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-2xl font-black text-text-main">Lightning Fast</h3>
                     <p className="text-text-muted text-sm font-medium">
-                        Delicious meals delivered quickly while keeping freshness intact.
+                        Delicious meals delivered quickly while keeping freshness.
                     </p>
                 </div>
 
