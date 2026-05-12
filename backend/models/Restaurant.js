@@ -9,7 +9,13 @@ const schema = new mongoose.Schema({
     image: String,       // Profile/Logo image
     description: String, // About the restaurant
     address: String,     // Physical location
-    isActive: Boolean    // Whether the restaurant is currently accepting orders
+    isActive: Boolean,    // Whether the restaurant is currently accepting orders
+
+    // Rich UI Fields
+    cuisine: { type: String, default: "Multi-Cuisine" },
+    rating: { type: Number, default: 4.5 },
+    deliveryTime: { type: Number, default: 30 },
+    minOrder: { type: Number, default: 150 }
 });
 
 export default mongoose.model("Restaurant", schema);

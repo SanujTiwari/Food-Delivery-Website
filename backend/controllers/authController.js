@@ -9,13 +9,13 @@ import jwt from "jsonwebtoken";
  */
 export const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, phone, role } = req.body;
 
         // Hash the password before saving (10 salt rounds)
         const hashed = await bcrypt.hash(password, 10);
 
         // Create and save user with hashed password
-        const user = await User.create({ name, email, password: hashed, role: role || "user" });
+        const user = await User.create({ name, email, password: hashed, phone, role: role || "user" });
 
         res.json(user);
     } catch (err) {
@@ -60,9 +60,37 @@ export const login = async (req, res) => {
         );
 
         // Send token and user details to frontend
-        res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
+        res.json({ token, user: { id: user._id, name: user.name, role: user.role, email: user.email, phone: user.phone } });
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ msg: "Server Error during login" });
+    }
+};
+
+/**
+ * Handles profile update
+ */
+export const updateProfile = async (req, res) => {
+    try {
+        const { name, phone } = req.body;
+        
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { name, phone },
+            { new: true }
+        );
+
+        if (!user) return res.status(404).json({ msg: "User not found" });
+
+        const token = jwt.sign(
+            { id: user._id, name: user.name, role: user.role, email: user.email, phone: user.phone },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        res.json({ token, user: { id: user._id, name: user.name, role: user.role, email: user.email, phone: user.phone } });
+    } catch (err) {
+        console.error("Profile Update Error:", err);
+        res.status(500).json({ msg: "Server error during profile update" });
     }
 };

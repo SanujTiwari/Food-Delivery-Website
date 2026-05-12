@@ -1,130 +1,224 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Utensils, UtensilsCrossed, ClipboardList, TrendingUp, Users, IndianRupee, ChevronRight } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import { 
+    TrendingUp, Users, ShoppingBag, DollarSign, Activity, 
+    ArrowRight, UtensilsCrossed, Package, Star 
+} from "lucide-react";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
-        restaurants: 0,
-        orders: 0,
         totalRevenue: 0,
-        activeUsers: 0
+        totalOrders: 0,
+        totalUsers: 0,
+        recentOrders: []
     });
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchStats();
+        fetchDashboardData();
     }, []);
 
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
         try {
-            // Mocking stats for now as backend might not have specialized stats endpoint
-            const [restaurantRes, orderRes] = await Promise.all([
-                API.get("/restaurants"),
-                API.get("/orders/admin")
+            // Fetch all orders and users
+            const [ordersRes, usersRes] = await Promise.all([
+                API.get("/orders"),
+                API.get("/users")
             ]);
-
-            const totalRevenue = orderRes.data.reduce((acc, order) => acc + (order.totalAmount || 0), 0);
+            
+            const orders = ordersRes.data;
+            const revenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
 
             setStats({
-                restaurants: restaurantRes.data.length,
-                orders: orderRes.data.length,
-                totalRevenue: totalRevenue,
-                activeUsers: 42 // Mock
+                totalRevenue: revenue,
+                totalOrders: orders.length,
+                totalUsers: usersRes.data.length,
+                // Last 5 orders
+                recentOrders: orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5)
             });
         } catch (err) {
             console.error(err);
-        } finally {
-            setLoading(false);
         }
     };
 
-    if (loading) return <LoadingSpinner />;
-
-    const statCards = [
-        { label: "Total Restaurants", value: stats.restaurants, icon: Utensils, color: "text-primary", bg: "bg-primary/10" },
-        { label: "Total Orders", value: stats.orders, icon: ClipboardList, color: "text-accent", bg: "bg-accent/10" },
-        { label: "Total Revenue", value: `₹${stats.totalRevenue}`, icon: IndianRupee, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "Active Customers", value: stats.activeUsers, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+    const kpiCards = [
+        { title: "Total Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500", bg: "bg-green-500/10", trend: "+12.5%" },
+        { title: "Total Orders", value: stats.totalOrders.toLocaleString(), icon: ShoppingBag, color: "text-primary", bg: "bg-primary-soft", trend: "+8.2%" },
+        { title: "Total Users", value: stats.totalUsers.toLocaleString(), icon: Users, color: "text-accent", bg: "bg-accent-soft", trend: "+15.3%" },
+        { title: "Active Deliveries", value: "24", icon: Package, color: "text-warning", bg: "bg-warning/10", trend: "+2.1%" },
     ];
 
+    // Mock chart data points
+    const chartPoints = "0,100 20,80 40,90 60,40 80,60 100,20";
+
     return (
-        <div className="space-y-10 animate-fade-in pb-20">
-            <div className="flex items-center justify-between">
+        <div className="container-app pt-24 pb-24 space-y-10 animate-fade-in">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-black/5 dark:border-white/5 pb-8">
                 <div>
-                    <h2 className="text-3xl font-black text-text-main flex items-center gap-3 uppercase italic tracking-tighter">
-                        <LayoutDashboard className="text-primary w-8 h-8" />
-                        Admin Dashboard
+                    <h2 className="text-4xl font-black text-text-main tracking-tight uppercase">
+                        Admin <span className="text-primary italic">Dashboard</span>
                     </h2>
-                    <p className="text-text-muted mt-2 font-bold text-xs uppercase tracking-widest opacity-60">Manage your platform and track performance</p>
+                    <p className="text-text-muted mt-2 font-bold uppercase tracking-widest text-xs">Platform Overview & Analytics</p>
                 </div>
-                <button className="btn-primary flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    <span>View Reports</span>
-                </button>
+                <div className="flex gap-4">
+                    <Link to="/admin/foods" className="btn-outline !py-2.5 !text-xs gap-2">
+                        <UtensilsCrossed className="w-4 h-4" /> Manage Foods
+                    </Link>
+                    <Link to="/admin/orders" className="btn-primary !py-2.5 !text-xs gap-2">
+                        <ShoppingBag className="w-4 h-4" /> All Orders
+                    </Link>
+                </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {statCards.map((stat, idx) => (
-                    <div key={idx} className="glass-card !bg-white p-8 space-y-4 hover:border-primary/20 transition-all shadow-xl group">
-                        <div className={`${stat.bg} ${stat.color} w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                            <stat.icon className="w-7 h-7" />
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {kpiCards.map((card, i) => (
+                    <div key={i} className="surface-card p-6 flex flex-col justify-between h-36 hover-lift animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                        <div className="flex justify-between items-start">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.bg} ${card.color}`}>
+                                <card.icon className="w-5 h-5" />
+                            </div>
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded">
+                                <TrendingUp className="w-3 h-3" /> {card.trend}
+                            </span>
                         </div>
                         <div>
-                            <p className="text-text-muted text-[10px] uppercase tracking-[0.2em] font-black opacity-60">{stat.label}</p>
-                            <p className="text-4xl font-black text-text-main mt-1 tracking-tighter italic">{stat.value}</p>
+                            <h3 className="text-2xl font-black text-text-main">{card.value}</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{card.title}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                    <h3 className="text-xl font-black text-text-main px-1 uppercase tracking-wider italic">Management Controls</h3>
-                    <div className="space-y-4">
-                        <Link to="/admin/restaurants" className="group glass-card !bg-white p-6 flex items-center justify-between hover:border-primary/20 transition-all shadow-lg border border-black/5">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-primary/10 p-4 rounded-2xl group-hover:bg-primary transition-colors">
-                                    <Utensils className="text-primary w-6 h-6 group-hover:text-white transition-colors" />
-                                </div>
-                                <div>
-                                    <p className="text-text-main font-black text-lg uppercase tracking-tight italic">Manage Restaurants</p>
-                                    <p className="text-text-muted text-xs font-bold opacity-60">Add, edit or deactivate restaurants</p>
-                                </div>
-                            </div>
-                            <ChevronRight className="text-text-muted group-hover:text-primary group-hover:translate-x-2 transition-all" />
-                        </Link>
+            {/* Charts & Top Items */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Revenue Chart (Mock SVG) */}
+                <div className="lg:col-span-2 surface-card p-8 space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-black text-text-main uppercase tracking-widest">Revenue Overview</h3>
+                        <select className="input-base !py-1 !px-3 !w-auto !text-xs bg-transparent border-black/5 dark:border-white/5">
+                            <option>This Week</option>
+                            <option>This Month</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    
+                    <div className="relative h-64 w-full bg-bg-subtle rounded-xl border border-black/5 dark:border-white/5 flex items-end justify-between p-4 px-8 overflow-hidden">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-10">
+                            {[1,2,3,4,5].map(i => <div key={i} className="w-full border-b border-text-main" />)}
+                        </div>
+                        
+                        {/* SVG Line Chart */}
+                        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full p-4 overflow-visible z-10">
+                            <path 
+                                d={`M ${chartPoints}`} 
+                                fill="none" 
+                                stroke="var(--primary)" 
+                                strokeWidth="3" 
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="drop-shadow-lg"
+                            />
+                            {/* Points */}
+                            {chartPoints.split(' ').map((point, i) => {
+                                const [x, y] = point.split(',');
+                                return (
+                                    <circle key={i} cx={x} cy={y} r="3" fill="var(--bg-card)" stroke="var(--primary)" strokeWidth="2" />
+                                );
+                            })}
+                        </svg>
 
-                        <Link to="/admin/orders" className="group glass-card !bg-white p-6 flex items-center justify-between hover:border-accent/20 transition-all shadow-lg border border-black/5">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-accent/10 p-4 rounded-2xl group-hover:bg-accent transition-colors">
-                                    <ClipboardList className="text-accent w-6 h-6 group-hover:text-white transition-colors" />
-                                </div>
-                                <div>
-                                    <p className="text-text-main font-black text-lg uppercase tracking-tight italic">Manage Orders</p>
-                                    <p className="text-text-muted text-xs font-bold opacity-60">Update order status and tracking</p>
-                                </div>
-                            </div>
-                            <ChevronRight className="text-text-muted group-hover:text-accent group-hover:translate-x-2 transition-all" />
-                        </Link>
+                        {/* X-Axis labels */}
+                        <div className="absolute bottom-1 left-0 right-0 flex justify-between px-8 text-[10px] font-bold text-text-faint uppercase">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="glass-card !bg-white p-8 flex flex-col items-center justify-center text-center space-y-6 shadow-2xl border border-black/5">
-                    <div className="bg-primary/5 p-8 rounded-full">
-                        <UtensilsCrossed className="text-primary w-14 h-14" />
+                {/* Top Foods */}
+                <div className="surface-card p-8 space-y-6">
+                    <h3 className="text-lg font-black text-text-main uppercase tracking-widest">Trending Foods</h3>
+                    <div className="space-y-4">
+                        {[
+                            { name: "Margherita Pizza", orders: 145, img: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002" },
+                            { name: "Spicy Chicken Burger", orders: 112, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd" },
+                            { name: "Sushi Platter", orders: 98, img: "https://images.unsplash.com/photo-1553621042-f6e147245754" },
+                            { name: "Paneer Tikka", orders: 85, img: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8" },
+                        ].map((food, i) => (
+                            <div key={i} className="flex items-center gap-4 group">
+                                <img src={food.img} className="w-12 h-12 rounded-lg object-cover" alt={food.name} />
+                                <div className="flex-1">
+                                    <p className="font-bold text-sm text-text-main group-hover:text-primary transition-colors">{food.name}</p>
+                                    <div className="flex items-center gap-1 text-[10px] text-text-muted font-bold">
+                                        <Star className="w-3 h-3 text-warning fill-warning" /> 4.8
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs font-black text-text-main">{food.orders}</p>
+                                    <p className="text-[9px] uppercase tracking-widest text-text-muted">Orders</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="space-y-2">
-                        <h3 className="text-2xl font-black text-text-main uppercase italic tracking-tighter">System Health</h3>
-                        <p className="text-text-muted max-w-xs">All services are running smoothly. Database and CDN links are active.</p>
-                    </div>
-                    <div className="flex items-center gap-3 bg-green-500/10 text-green-500 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        All Systems Operational
-                    </div>
+                    <Link to="/admin/foods" className="block w-full text-center py-2 text-xs font-bold text-primary hover:underline uppercase tracking-widest">
+                        View Full Menu
+                    </Link>
+                </div>
+            </div>
+
+            {/* Recent Orders Activity */}
+            <div className="surface-card p-8 space-y-6">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-black text-text-main uppercase tracking-widest">Recent Activity</h3>
+                    <Link to="/admin/orders" className="text-xs font-bold text-primary hover:underline uppercase tracking-widest flex items-center gap-1">
+                        View All <ArrowRight className="w-3 h-3" />
+                    </Link>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr className="border-b border-black/5 dark:border-white/5">
+                                <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Order ID</th>
+                                <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Customer</th>
+                                <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Amount</th>
+                                <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Status</th>
+                                <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-black/5 dark:divide-white/5">
+                            {stats.recentOrders.length > 0 ? (
+                                stats.recentOrders.map(order => (
+                                    <tr key={order._id} className="hover:bg-bg-subtle transition-colors">
+                                        <td className="py-4 font-mono text-xs font-bold">#{order._id.slice(-6).toUpperCase()}</td>
+                                        <td className="py-4">
+                                            <p className="text-sm font-bold text-text-main truncate max-w-[150px]">{order.deliveryAddress.split(',')[0]}</p>
+                                        </td>
+                                        <td className="py-4 font-black text-text-main">₹{order.totalAmount}</td>
+                                        <td className="py-4">
+                                            <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full ${
+                                                order.status === "Delivered" ? "bg-success/10 text-success" :
+                                                order.status === "Pending" ? "bg-warning/10 text-warning" :
+                                                "bg-primary-soft text-primary"
+                                            }`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 text-xs font-medium text-text-muted flex items-center gap-1">
+                                            <Activity className="w-3 h-3" />
+                                            {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="py-8 text-center text-text-muted text-sm font-medium">No recent orders found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -1,73 +1,158 @@
-import { ShieldCheck, Truck, Utensils, Award, Zap, Heart } from "lucide-react";
+import { Rocket, ShieldCheck, Clock, UtensilsCrossed, Zap, Star, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Service() {
-    const services = [
+    const features = [
         {
-            icon: <Truck className="w-10 h-10 text-primary" />,
+            icon: Rocket,
             title: "Lightning Fast Delivery",
-            desc: "Hot and fresh meals at your doorstep in under 30 minutes, every single time."
+            desc: "Experience our proprietary routing algorithm that ensures your food arrives hot within 30 minutes, every single time."
         },
         {
-            icon: <ShieldCheck className="w-10 h-10 text-primary" />,
-            title: "Elite Quality Control",
-            desc: "We partner only with top-rated restaurants that pass our rigorous 50-point hygiene check."
+            icon: ShieldCheck,
+            title: "100% Secure Payments",
+            desc: "Bank-grade encryption for all your transactions. Pay seamlessly via UPI, Credit/Debit cards, or choose Cash on Delivery."
         },
         {
-            icon: <Award className="w-10 h-10 text-primary" />,
-            title: "Curated Excellence",
-            desc: "Discover hand-picked menus from the city's finest chefs, exclusively on QuickBite."
+            icon: UtensilsCrossed,
+            title: "Premium Restaurant Curation",
+            desc: "We partner exclusively with top-rated restaurants, ensuring every meal meets our rigorous quality and hygiene standards."
         },
         {
-            icon: <Zap className="w-10 h-10 text-primary" />,
-            title: "Live Tracking",
-            desc: "Watch your meal travel from the kitchen to your table with real-time GPS precision."
+            icon: Clock,
+            title: "24/7 Priority Support",
+            desc: "Our dedicated customer success team is always online to assist you with any queries or order modifications."
+        }
+    ];
+
+    const plans = [
+        {
+            name: "Basic",
+            price: "Free",
+            desc: "Perfect for occasional cravings",
+            features: [
+                "Access to all restaurants",
+                "Standard delivery times",
+                "Standard support",
+                "Pay per delivery"
+            ],
+            buttonText: "Start Ordering",
+            isPopular: false
         },
         {
-            icon: <Utensils className="w-10 h-10 text-primary" />,
-            title: "Zero Plastic Initiative",
-            desc: "Committed to the planet—all our deliveries use 100% biodegradable and eco-friendly packaging."
-        },
-        {
-            icon: <Heart className="w-10 h-10 text-primary" />,
-            title: "Personalized Menus",
-            desc: "An AI-powered engine that learns your taste to suggest meals you'll actually love."
+            name: "DeliverX Pro",
+            price: "₹149",
+            period: "/month",
+            desc: "For the true food enthusiasts",
+            features: [
+                "Zero delivery fees",
+                "Priority 20-min delivery",
+                "Exclusive Pro-only menus",
+                "24/7 dedicated support line",
+                "2x Loyalty Points"
+            ],
+            buttonText: "Upgrade to Pro",
+            isPopular: true
         }
     ];
 
     return (
-        <div className="space-y-20 animate-fade-in pb-24 px-4 md:px-0">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-                <span className="text-primary font-black uppercase tracking-[0.3em] text-sm">Experience the Elite</span>
-                <h1 className="text-5xl md:text-8xl font-black text-text-main tracking-tighter leading-none">
-                    Redefining <br /> <span className="gradient-text">The Art of Dining</span>
+        <div className="container-app pt-24 pb-24 space-y-24 animate-fade-in">
+            
+            {/* HERO */}
+            <div className="text-center space-y-6 max-w-3xl mx-auto">
+                <span className="section-tag mx-auto">Why Choose Us</span>
+                <h1 className="text-4xl md:text-6xl font-black text-text-main tracking-tight leading-[1.1]">
+                    Redefining <span className="text-primary italic">Food Delivery</span>
                 </h1>
-                <p className="text-text-muted text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                    At QuickBite, we don't just deliver food; we craft experiences. From the moment you browse to the first bite, excellence is our only standard.
+                <p className="text-text-muted text-lg font-medium leading-relaxed">
+                    We don't just deliver food; we deliver culinary experiences. Discover how DeliverX is changing the game with technology, speed, and uncompromising quality.
                 </p>
             </div>
 
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {services.map((s, i) => (
-                    <div key={i} className="glass-card !bg-white p-10 space-y-6 hover:border-primary/20 transition-all group hover:-translate-y-2 duration-500 shadow-xl">
-                        <div className="bg-black/5 w-20 h-20 rounded-[30px] flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/10 transition-all border border-black/5">
-                            {s.icon}
+            {/* FEATURES GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {features.map((feature, i) => (
+                    <div key={i} className="surface-card p-8 sm:p-10 hover-lift group animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                        <div className="w-16 h-16 bg-primary-soft text-primary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <feature.icon className="w-8 h-8" />
                         </div>
-                        <div className="space-y-3">
-                            <h3 className="text-2xl font-black text-text-main group-hover:text-primary transition-colors">{s.title}</h3>
-                            <p className="text-text-muted font-medium leading-relaxed opacity-70">{s.desc}</p>
-                        </div>
+                        <h3 className="text-2xl font-bold text-text-main mb-3">{feature.title}</h3>
+                        <p className="text-text-muted leading-relaxed font-medium">{feature.desc}</p>
                     </div>
                 ))}
             </div>
 
-            <div className="max-w-5xl mx-auto overflow-hidden relative rounded-[50px] bg-primary/5 p-16 text-center space-y-10 border border-primary/10 shadow-[0_0_100px_rgba(99,102,241,0.05)]">
-                <div className="absolute inset-0 bg-linear-to-tr from-primary/5 via-transparent to-transparent opacity-30" />
-                <h2 className="text-4xl md:text-6xl font-black text-text-main relative z-10">Ready to taste the future?</h2>
-                <Link to="/" className="inline-block btn-primary px-16 py-6 text-2xl relative z-10 hover:shadow-[0_0_40px_rgba(255,184,0,0.3)]">
-                    Explore The Menu
-                </Link>
+            {/* STATS BANNER */}
+            <div className="glass-card bg-primary text-white rounded-[2rem] p-12 overflow-hidden relative shadow-primary">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-white/20">
+                    <div className="space-y-2 py-4">
+                        <div className="flex justify-center mb-2"><Zap className="w-8 h-8 text-warning" /></div>
+                        <h4 className="text-4xl font-black">22 Min</h4>
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-80">Average Delivery</p>
+                    </div>
+                    <div className="space-y-2 py-4">
+                        <div className="flex justify-center mb-2"><Star className="w-8 h-8 text-warning" /></div>
+                        <h4 className="text-4xl font-black">4.9/5</h4>
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-80">Customer Rating</p>
+                    </div>
+                    <div className="space-y-2 py-4">
+                        <div className="flex justify-center mb-2"><ShieldCheck className="w-8 h-8 text-success" /></div>
+                        <h4 className="text-4xl font-black">100%</h4>
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-80">Quality Guarantee</p>
+                    </div>
+                </div>
             </div>
-        </div >
+
+            {/* PRICING */}
+            <div className="space-y-12 max-w-5xl mx-auto">
+                <div className="text-center space-y-4">
+                    <h2 className="text-3xl md:text-4xl font-black text-text-main">Pricing & Plans</h2>
+                    <p className="text-text-muted">Choose the plan that fits your appetite.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    {plans.map((plan, i) => (
+                        <div key={i} className={`surface-card p-8 sm:p-10 relative overflow-hidden transition-all ${plan.isPopular ? 'border-primary ring-4 ring-primary-soft shadow-primary scale-105 z-10' : ''}`}>
+                            {plan.isPopular && (
+                                <div className="absolute top-6 right-6">
+                                    <span className="badge badge-accent shadow-sm">Most Popular</span>
+                                </div>
+                            )}
+                            
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-2xl font-black text-text-main">{plan.name}</h3>
+                                    <p className="text-text-muted text-sm font-medium mt-1">{plan.desc}</p>
+                                </div>
+                                
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-5xl font-black text-text-main">{plan.price}</span>
+                                    {plan.period && <span className="text-text-muted font-bold">{plan.period}</span>}
+                                </div>
+
+                                <div className="divider" />
+
+                                <ul className="space-y-4">
+                                    {plan.features.map((feat, j) => (
+                                        <li key={j} className="flex items-center gap-3 text-text-main font-medium text-sm">
+                                            <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <Link to={plan.isPopular ? "/register" : "/"} className={`block w-full text-center py-4 rounded-xl font-bold uppercase tracking-widest text-xs transition-colors ${
+                                    plan.isPopular ? "bg-primary text-white shadow-primary hover:bg-primary-hover" : "bg-bg-subtle text-text-main hover:bg-black/5 dark:hover:bg-white/5"
+                                }`}>
+                                    {plan.buttonText}
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
     );
 }

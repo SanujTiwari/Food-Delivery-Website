@@ -12,6 +12,7 @@ import Checkout from "./pages/Checkout.jsx";
 import Orders from "./pages/Orders.jsx";
 import Service from "./pages/Service.jsx";
 import Contact from "./pages/Contact.jsx";
+import Profile from "./pages/Profile.jsx";
 
 // Admin Page Imports
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
@@ -67,6 +68,7 @@ function App() {
           {/* Customer Protected Routes */}
           <Route path="/checkout" element={<ProtectedRoute><Checkout showToast={showToast} /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><Orders showToast={showToast} /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile showToast={showToast} /></ProtectedRoute>} />
 
           {/* Admin Exclusive Routes */}
           <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly={true}><AdminDashboard showToast={showToast} /></ProtectedRoute>} />

@@ -21,8 +21,8 @@ export const placeOrder = async (req, res) => {
             price: item.foodId?.price || 0,
             quantity: item.quantity
         })),
-        totalAmount: cart.totalAmount + 15, // Adding a fixed delivery fee of 15
-        deliveryAddress: req.body.address,
+        totalAmount: req.body.totalAmount, // Calculated properly in frontend
+        deliveryAddress: req.body.deliveryAddress, // Aligned with Checkout.jsx
         paymentMethod: req.body.paymentMethod
     });
 

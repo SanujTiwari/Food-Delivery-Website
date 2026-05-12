@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     name: String,                               // Full name of the user
     email: { type: String, unique: true },      // Unique email address for login
     password: String,                           // Hashed password string
+    phone: String,                              // User's contact number
     role: { type: String, default: "user" }     // Role of the user (user, admin, seller, etc.)
 });
 

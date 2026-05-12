@@ -1,78 +1,93 @@
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Send } from "lucide-react";
+import { Link } from "react-router-dom";
 
-/**
- * Footer Component
- * Displays social links, site navigation, and contact information
- */
 const Footer = () => {
     return (
-        <footer className="bg-bg-card border-t border-black/5 pt-16 pb-8 px-6 md:px-12 mt-20">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-
-                {/* Brand Info & Socials */}
-                <div className="space-y-4">
-                    <h3 className="text-2xl font-bold gradient-text">DeliverX</h3>
-                    <p className="text-text-muted leading-relaxed">
-                        The fastest and easiest way to order your favorite food from top-rated restaurants near you.
+        <footer className="bg-bg-card border-t border-black/5 pt-20 pb-8 mt-24">
+            <div className="container-app grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
+                
+                {/* Brand & Newsletter */}
+                <div className="lg:col-span-2 space-y-6">
+                    <h3 className="text-3xl font-black font-[Outfit]">
+                        Deliver<span className="text-primary">X</span>
+                    </h3>
+                    <p className="text-text-muted leading-relaxed max-w-sm font-medium">
+                        Elevating your dining experience. The fastest, most reliable way to get premium meals delivered to your door.
                     </p>
-                    <div className="flex gap-4">
-                        <a href="#" className="p-2 glass-card hover:bg-primary transition-colors inline-block">
-                            <Facebook className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="p-2 glass-card hover:bg-primary transition-colors inline-block">
-                            <Twitter className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="p-2 glass-card hover:bg-primary transition-colors inline-block">
-                            <Instagram className="w-5 h-5" />
-                        </a>
+                    
+                    <div className="space-y-3 pt-2">
+                        <p className="text-xs font-bold uppercase tracking-widest text-text-main">Subscribe to newsletter</p>
+                        <div className="flex gap-2 max-w-sm">
+                            <input 
+                                type="email" 
+                                placeholder="Enter your email" 
+                                className="input-base !py-2.5 !text-sm flex-1"
+                            />
+                            <button className="bg-primary hover:bg-primary-hover text-white px-4 rounded-xl transition-colors shadow-sm">
+                                <Send className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Quick Navigation */}
-                <div>
-                    <h4 className="text-lg font-semibold text-text-main mb-6">Quick Links</h4>
-                    <ul className="space-y-4 text-text-muted">
-                        <li><a href="/" className="hover:text-primary transition-colors">Home</a></li>
-                        <li><a href="/login" className="hover:text-primary transition-colors">Login</a></li>
-                        <li><a href="/register" className="hover:text-primary transition-colors">Sign Up</a></li>
-                        <li><a href="/orders" className="hover:text-primary transition-colors">My Orders</a></li>
+                {/* Explore */}
+                <div className="space-y-6">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-text-main">Explore</h4>
+                    <ul className="space-y-4">
+                        <li><Link to="/" className="text-text-muted hover:text-primary transition-colors font-medium">Top Restaurants</Link></li>
+                        <li><Link to="/service" className="text-text-muted hover:text-primary transition-colors font-medium">Our Services</Link></li>
+                        <li><Link to="/about" className="text-text-muted hover:text-primary transition-colors font-medium">About Us</Link></li>
+                        <li><Link to="/blog" className="text-text-muted hover:text-primary transition-colors font-medium">Blog & News</Link></li>
                     </ul>
                 </div>
 
-                {/* Support Links */}
-                <div>
-                    <h4 className="text-lg font-semibold text-text-main mb-6">Support</h4>
-                    <ul className="space-y-4 text-text-muted">
-                        <li><a href="/contact" className="hover:text-primary transition-colors">Help Center</a></li>
-                        <li><a href="/contact" className="hover:text-primary transition-colors">Privacy Policy</a></li>
-                        <li><a href="/contact" className="hover:text-primary transition-colors">Terms of Service</a></li>
-                        <li><a href="/contact" className="hover:text-primary transition-colors">Contact Us</a></li>
+                {/* Legal */}
+                <div className="space-y-6">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-text-main">Legal</h4>
+                    <ul className="space-y-4">
+                        <li><Link to="/contact" className="text-text-muted hover:text-primary transition-colors font-medium">Terms of Service</Link></li>
+                        <li><Link to="/contact" className="text-text-muted hover:text-primary transition-colors font-medium">Privacy Policy</Link></li>
+                        <li><Link to="/contact" className="text-text-muted hover:text-primary transition-colors font-medium">Cookie Policy</Link></li>
+                        <li><Link to="/contact" className="text-text-muted hover:text-primary transition-colors font-medium">Help Center</Link></li>
                     </ul>
                 </div>
 
-                {/* Contact Information */}
-                <div>
-                    <h4 className="text-lg font-semibold text-text-main mb-6">Contact</h4>
-                    <ul className="space-y-4 text-text-muted">
-                        <li className="flex items-center gap-3">
-                            <Phone className="w-5 h-5 text-primary" />
-                            <span>+91 7366891704</span>
+                {/* Contact */}
+                <div className="space-y-6">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-text-main">Contact</h4>
+                    <ul className="space-y-4 text-text-muted font-medium">
+                        <li className="flex items-start gap-3">
+                            <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                            <span>123 Foodie Blvd, Culinary District, CA 90210</span>
                         </li>
                         <li className="flex items-center gap-3">
-                            <Mail className="w-5 h-5 text-primary" />
-                            <span>support@deliverx.com</span>
+                            <Phone className="w-5 h-5 text-primary shrink-0" />
+                            <span>+1 (800) 123-4567</span>
                         </li>
                         <li className="flex items-center gap-3">
-                            <MapPin className="w-5 h-5 text-primary" />
-                            <span>Last Gali Nanak Nagri Punjab</span>
+                            <Mail className="w-5 h-5 text-primary shrink-0" />
+                            <span>hello@deliverx.com</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            {/* Copyright Note */}
-            <div className="max-w-7xl mx-auto border-t border-black/5 mt-16 pt-8 text-center text-text-muted">
-                <p>&copy; {new Date().getFullYear()}.  Made with ❤️ By DeliverX Team. All rights reserved.</p>
+            {/* Bottom Bar */}
+            <div className="container-app mt-16 pt-8 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p className="text-sm text-text-muted font-medium">
+                    &copy; {new Date().getFullYear()} DeliverX Inc. All rights reserved.
+                </p>
+                <div className="flex items-center gap-4">
+                    <a href="#" className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-text-muted hover:text-white hover:bg-primary hover:border-primary transition-all">
+                        <Facebook className="w-4 h-4" />
+                    </a>
+                    <a href="#" className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-text-muted hover:text-white hover:bg-primary hover:border-primary transition-all">
+                        <Twitter className="w-4 h-4" />
+                    </a>
+                    <a href="#" className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-text-muted hover:text-white hover:bg-primary hover:border-primary transition-all">
+                        <Instagram className="w-4 h-4" />
+                    </a>
+                </div>
             </div>
         </footer>
     );
